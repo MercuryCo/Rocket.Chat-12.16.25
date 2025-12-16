@@ -1,6 +1,14 @@
 import { api, FederationMatrix } from '@rocket.chat/core-services';
 import type { IUser, SlashCommandCallbackParams } from '@rocket.chat/core-typings';
-import { validateFederatedUsername } from '@rocket.chat/federation-matrix';
+// Conditional import for FOSS builds (federation-matrix is EE-only)
+let validateFederatedUsername: ((mxid: string) => mxid is string) | undefined;
+try {
+	const federationMatrix = require('@rocket.chat/federation-matrix');
+	validateFederatedUsername = federationMatrix.validateFederatedUsername;
+} catch {
+	// Federation-matrix not available in FOSS builds - stub function
+	validateFederatedUsername = (mxid: string): mxid is string => false;
+}
 import { Subscriptions, Users, Rooms } from '@rocket.chat/models';
 import { Meteor } from 'meteor/meteor';
 

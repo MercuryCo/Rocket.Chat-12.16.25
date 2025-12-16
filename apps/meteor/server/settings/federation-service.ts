@@ -1,4 +1,12 @@
-import { generateEd25519RandomSecretKey } from '@rocket.chat/federation-matrix';
+// Conditional import for FOSS builds (federation-matrix is EE-only)
+let generateEd25519RandomSecretKey: (() => Buffer) | undefined;
+try {
+	const federationMatrix = require('@rocket.chat/federation-matrix');
+	generateEd25519RandomSecretKey = federationMatrix.generateEd25519RandomSecretKey;
+} catch {
+	// Federation-matrix not available in FOSS builds
+	generateEd25519RandomSecretKey = undefined;
+}
 
 import { settingsRegistry } from '../../app/settings/server';
 
@@ -40,7 +48,11 @@ export const createFederationServiceSettings = async (): Promise<void> => {
 			invalidValue: '0',
 		});
 
-		const randomKey = generateEd25519RandomSecretKey().toString('base64');
+		// Generate random key only if federation-matrix is available (EE builds)
+		// For FOSS builds, use a placeholder
+		const randomKey = generateEd25519RandomSecretKey 
+			? generateEd25519RandomSecretKey().toString('base64')
+			: Buffer.from('foss-build-no-federation').toString('base64');
 
 		// https://spec.matrix.org/v1.16/appendices/#signing-details
 		await this.add('Federation_Service_Matrix_Signing_Key', randomKey, {
