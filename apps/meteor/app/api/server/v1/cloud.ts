@@ -3,6 +3,7 @@ import { isCloudConfirmationPollProps, isCloudCreateRegistrationIntentProps, isC
 import { CloudWorkspaceRegistrationError } from '../../../../lib/errors/CloudWorkspaceRegistrationError';
 import { SystemLogger } from '../../../../server/lib/logger/system';
 import { hasRoleAsync } from '../../../authorization/server/functions/hasRole';
+import { settings } from '../../../settings/server';
 import { getCheckoutUrl } from '../../../cloud/server/functions/getCheckoutUrl';
 import { getConfirmationPoll } from '../../../cloud/server/functions/getConfirmationPoll';
 import {
@@ -42,6 +43,12 @@ API.v1.addRoute(
 	{ authRequired: true, permissionsRequired: ['manage-cloud'], validateParams: isCloudCreateRegistrationIntentProps },
 	{
 		async post() {
+			// Prevent cloud registration if Register_Server is set to false
+			const registerServer = settings.get<boolean>('Register_Server');
+			if (registerServer === false) {
+				return API.v1.failure('Cloud registration is disabled. Register_Server is set to false.');
+			}
+
 			const intentData = await startRegisterWorkspaceSetupWizard(this.bodyParams.resend, this.bodyParams.email);
 
 			if (intentData) {

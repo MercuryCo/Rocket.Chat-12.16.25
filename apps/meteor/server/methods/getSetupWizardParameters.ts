@@ -18,7 +18,13 @@ declare module '@rocket.chat/ddp-client' {
 Meteor.methods<ServerMethods>({
 	async getSetupWizardParameters() {
 		const setupWizardSettings = await Settings.findSetupWizardSettings().toArray();
-		const serverAlreadyRegistered = !!settings.get('Cloud_Workspace_Client_Id') || process.env.DEPLOY_PLATFORM === 'rocket-cloud';
+		// Check if cloud registration is disabled via Register_Server=false
+		// This allows standalone installations to skip cloud registration
+		const registerServer = settings.get<boolean>('Register_Server');
+		const serverAlreadyRegistered = 
+			!!settings.get('Cloud_Workspace_Client_Id') || 
+			process.env.DEPLOY_PLATFORM === 'rocket-cloud' ||
+			registerServer === false; // Skip cloud if Register_Server is explicitly false
 
 		return {
 			settings: setupWizardSettings,
