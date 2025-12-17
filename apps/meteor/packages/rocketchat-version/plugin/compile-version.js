@@ -20,23 +20,29 @@ class VersionCompiler {
 
 				function handleError(err) {
 					console.error('Error getting supported versions', err);
-					// TODO remove this when we are ready to fail
-					if (process.env.NODE_ENV !== 'development') {
-						reject(err);
-						return;
-					}
+					console.warn('Continuing build with empty supported versions (standalone build)');
+					// For standalone builds, we don't require Rocket.Chat servers
+					// Resolve with empty object to allow build to continue
 					resolve({});
+				}
+
+				// Skip network call if explicitly disabled or in development
+				if (process.env.SKIP_SUPPORTED_VERSIONS_FETCH === 'true' || process.env.NODE_ENV === 'development') {
+					console.log('Skipping supported versions fetch (standalone build)');
+					resolve({});
+					return;
 				}
 
 				console.log('Getting supported versions from', url);
 
-				https
-					.get(url, function (response) {
-						let data = '';
-						response.on('data', function (chunk) {
-							data += chunk;
-						});
-						response.on('end', async function () {
+				// Add timeout to prevent hanging builds
+				const request = https.get(url, function (response) {
+					let data = '';
+					response.on('data', function (chunk) {
+						data += chunk;
+					});
+					response.on('end', async function () {
+						try {
 							const supportedVersions = JSON.parse(data);
 							if (!supportedVersions?.signed) {
 								return handleError(new Error(`Invalid supportedVersions result:\n  URL: ${url} \n  RESULT: ${data}`));
@@ -55,12 +61,24 @@ class VersionCompiler {
 							}
 
 							resolve(supportedVersions);
-						});
-						response.on('error', function (err) {
-							handleError(err);
-						});
-					})
-					.end();
+						} catch (parseErr) {
+							handleError(parseErr);
+						}
+					});
+					response.on('error', function (err) {
+						handleError(err);
+					});
+				});
+
+				// Set timeout (10 seconds)
+				request.setTimeout(10000, function () {
+					request.destroy();
+					handleError(new Error('Request timeout'));
+				});
+
+				request.on('error', function (err) {
+					handleError(err);
+				});
 			});
 
 			file.addJavaScript({
