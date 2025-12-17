@@ -1,0 +1,19 @@
+{
+	"name": "@rocket.chat/ui-theming",
+	"version": "0.0.0-stub",
+	"private": true,
+	"main": "./dist/index.js",
+	"typings": "./dist/index.d.ts",
+	"files": [
+		"/dist"
+	],
+	"scripts": {
+		"build": "tsc",
+		"dev": "tsc --watch"
+	},
+	"dependencies": {},
+	"devDependencies": {
+		"typescript": "~5.9.3"
+	}
+}
+
