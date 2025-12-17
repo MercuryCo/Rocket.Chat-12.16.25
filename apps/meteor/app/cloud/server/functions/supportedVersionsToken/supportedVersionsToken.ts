@@ -1,5 +1,19 @@
 import type { SettingValue } from '@rocket.chat/core-typings';
-import { License } from '@rocket.chat/license';
+// Conditional import for FOSS builds (license is EE-only)
+let License: any;
+try {
+	License = require('@rocket.chat/license').License;
+} catch {
+	// Stub for FOSS builds
+	License = {
+		getLicense: () => null,
+		hasValidLicense: () => false,
+		hasModule: () => false,
+		getModules: () => [],
+		getTags: () => [],
+	};
+}
+
 import { Settings } from '@rocket.chat/models';
 import type { SignedSupportedVersions, SupportedVersions } from '@rocket.chat/server-cloud-communication';
 import type { Response } from '@rocket.chat/server-fetch';

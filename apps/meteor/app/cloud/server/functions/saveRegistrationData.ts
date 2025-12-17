@@ -1,4 +1,14 @@
-import { applyLicense } from '@rocket.chat/license';
+// Conditional import for FOSS builds (license is EE-only)
+let applyLicense: any;
+try {
+	({ applyLicense } = require('@rocket.chat/license'));
+} catch {
+	// Stub for FOSS builds
+	applyLicense = () => {
+		console.warn('applyLicense called but license module not available (FOSS build)');
+	};
+}
+
 import { Settings } from '@rocket.chat/models';
 
 import { syncCloudData } from './syncWorkspace/syncCloudData';

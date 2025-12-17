@@ -1,4 +1,17 @@
-import { DuplicatedLicenseError } from '@rocket.chat/license';
+// Conditional import for FOSS builds (license is EE-only)
+let DuplicatedLicenseError: any;
+try {
+	({ DuplicatedLicenseError } = require('@rocket.chat/license'));
+} catch {
+	// Stub for FOSS builds
+	DuplicatedLicenseError = class extends Error {
+		constructor(message: string) {
+			super(message);
+			this.name = 'DuplicatedLicenseError';
+		}
+	};
+}
+
 import { Settings } from '@rocket.chat/models';
 
 import { callbacks } from '../../../../../lib/callbacks';
