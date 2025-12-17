@@ -157,7 +157,8 @@ class VersionCompiler {
 					break;
 				}
 				case file.getDisplayPath().endsWith('rocketchat-supported-versions.info'): {
-					if (process.env.NODE_ENV === 'development') {
+					if (process.env.NODE_ENV === 'development' || process.env.SKIP_SUPPORTED_VERSIONS_FETCH === 'true') {
+						console.log('Skipping supported versions fetch (standalone build)');
 						file.addJavaScript({
 							data: `exports.supportedVersions = {}`,
 							path: `${file.getPathInPackage()}.js`,
