@@ -1,5 +1,13 @@
 import { PaletteStyleTag } from '@rocket.chat/fuselage';
-import { useThemeMode } from '@rocket.chat/ui-theming';
+// Conditional import for FOSS builds (ui-theming is EE-only)
+let useThemeMode: () => [string, (mode: string) => void, any];
+try {
+	const uiTheming = require('@rocket.chat/ui-theming');
+	useThemeMode = uiTheming.useThemeMode;
+} catch {
+	// ui-theming not available in FOSS builds - create stub
+	useThemeMode = () => ['light', () => {}, {}];
+}
 
 import { codeBlock } from '../lib/codeBlockStyles';
 

@@ -1,5 +1,14 @@
 import type { LicenseBehavior, LicenseLimitKind } from '@rocket.chat/core-typings';
-import { validateWarnLimit } from '@rocket.chat/license/src/validation/validateLimit';
+// Conditional import for FOSS builds (license validation is EE-only)
+let validateWarnLimit: (max: number, value: number, behavior: string) => boolean;
+try {
+	const validateLimit = require('@rocket.chat/license/src/validation/validateLimit');
+	validateWarnLimit = validateLimit.validateWarnLimit;
+} catch {
+	// License validation not available in FOSS builds - create stub
+	// Always return false (no warnings in FOSS)
+	validateWarnLimit = () => false;
+}
 
 import { useLicense } from './useLicense';
 

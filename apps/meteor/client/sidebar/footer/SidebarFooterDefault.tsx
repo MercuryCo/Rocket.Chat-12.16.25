@@ -1,7 +1,15 @@
 import { css } from '@rocket.chat/css-in-js';
 import { Box, SidebarDivider, Palette, SidebarFooter as Footer } from '@rocket.chat/fuselage';
 import { useSetting } from '@rocket.chat/ui-contexts';
-import { useThemeMode } from '@rocket.chat/ui-theming';
+// Conditional import for FOSS builds (ui-theming is EE-only)
+let useThemeMode: () => [string, (mode: string) => void, any];
+try {
+	const uiTheming = require('@rocket.chat/ui-theming');
+	useThemeMode = uiTheming.useThemeMode;
+} catch {
+	// ui-theming not available in FOSS builds - create stub
+	useThemeMode = () => ['light', () => {}, {}];
+}
 import DOMPurify from 'dompurify';
 import type { ReactElement } from 'react';
 
