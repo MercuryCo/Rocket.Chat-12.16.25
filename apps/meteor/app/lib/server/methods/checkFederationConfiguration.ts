@@ -1,6 +1,18 @@
 import { Federation, FederationEE, Authorization } from '@rocket.chat/core-services';
 import type { ServerMethods } from '@rocket.chat/ddp-client';
-import { License } from '@rocket.chat/license';
+// Conditional import for FOSS builds (license is EE-only)
+let License: any;
+try {
+	License = require('@rocket.chat/license').License;
+} catch {
+	// License not available in FOSS builds - create stub
+	License = {
+		hasModule: () => false,
+		hasValidLicense: () => false,
+		getModules: () => [],
+		getTags: () => [],
+	};
+}
 import { Meteor } from 'meteor/meteor';
 
 declare module '@rocket.chat/ddp-client' {

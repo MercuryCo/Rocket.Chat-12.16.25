@@ -2,7 +2,19 @@ import { log } from 'console';
 
 import { Analytics } from '@rocket.chat/core-services';
 import type { IStats } from '@rocket.chat/core-typings';
-import { License } from '@rocket.chat/license';
+// Conditional import for FOSS builds (license is EE-only)
+let License: any;
+try {
+	License = require('@rocket.chat/license').License;
+} catch {
+	// License not available in FOSS builds - create stub
+	License = {
+		hasModule: () => false,
+		hasValidLicense: () => false,
+		getModules: () => [],
+		getTags: () => [],
+	};
+}
 import { CannedResponse, OmnichannelServiceLevelAgreements, LivechatRooms, LivechatTag, LivechatUnit, Users } from '@rocket.chat/models';
 
 import { getVoIPStatistics } from './getVoIPStatistics';

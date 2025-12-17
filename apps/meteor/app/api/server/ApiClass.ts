@@ -1,6 +1,18 @@
 import type { IMethodConnection, IUser } from '@rocket.chat/core-typings';
 import type { Route, Router } from '@rocket.chat/http-router';
-import { License } from '@rocket.chat/license';
+// Conditional import for FOSS builds (license is EE-only)
+let License: any;
+try {
+	License = require('@rocket.chat/license').License;
+} catch {
+	// License not available in FOSS builds - create stub
+	License = {
+		hasModule: () => false,
+		hasValidLicense: () => false,
+		getModules: () => [],
+		getTags: () => [],
+	};
+}
 import { Logger } from '@rocket.chat/logger';
 import { Users } from '@rocket.chat/models';
 import { Random } from '@rocket.chat/random';

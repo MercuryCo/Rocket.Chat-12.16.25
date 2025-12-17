@@ -1,5 +1,17 @@
 import type { ILivechatAgent, ILivechatDepartment, ILivechatTrigger, ILivechatVisitor, IOmnichannelRoom } from '@rocket.chat/core-typings';
-import { License } from '@rocket.chat/license';
+// Conditional import for FOSS builds (license is EE-only)
+let License: any;
+try {
+	License = require('@rocket.chat/license').License;
+} catch {
+	// License not available in FOSS builds - create stub
+	License = {
+		hasModule: () => false,
+		hasValidLicense: () => false,
+		getModules: () => [],
+		getTags: () => [],
+	};
+}
 import { EmojiCustom, LivechatTrigger, LivechatVisitors, LivechatRooms, LivechatDepartment } from '@rocket.chat/models';
 import { makeFunction } from '@rocket.chat/patch-injection';
 import { Meteor } from 'meteor/meteor';
