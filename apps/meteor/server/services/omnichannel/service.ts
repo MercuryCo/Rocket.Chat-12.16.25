@@ -1,7 +1,23 @@
 import { ServiceClassInternal } from '@rocket.chat/core-services';
 import type { IOmnichannelService } from '@rocket.chat/core-services';
 import type { AtLeast, IOmnichannelQueue, IOmnichannelRoom } from '@rocket.chat/core-typings';
-import { License } from '@rocket.chat/license';
+// Conditional import for FOSS builds (license is EE-only)
+let License: any;
+try {
+	License = require('@rocket.chat/license').License;
+} catch {
+	// Stub for FOSS builds
+	License = {
+		onLimitReached: () => {},
+		onValidateLicense: () => {},
+		onInvalidateLicense: () => {},
+		shouldPreventAction: async () => false,
+		hasValidLicense: () => false,
+		hasModule: () => false,
+		getModules: () => [],
+		getTags: () => [],
+	};
+}
 import moment from 'moment';
 
 import { OmnichannelQueue } from './queue';

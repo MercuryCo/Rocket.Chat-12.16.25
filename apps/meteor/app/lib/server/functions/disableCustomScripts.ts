@@ -1,4 +1,17 @@
-import { License } from '@rocket.chat/license';
+// Conditional import for FOSS builds (license is EE-only)
+let License: any;
+try {
+	License = require('@rocket.chat/license').License;
+} catch {
+	// Stub for FOSS builds
+	License = {
+		getLicense: () => null,
+		hasValidLicense: () => false,
+		hasModule: () => false,
+		getModules: () => [],
+		getTags: () => [],
+	};
+}
 
 export const disableCustomScripts = () => {
 	const license = License.getLicense();

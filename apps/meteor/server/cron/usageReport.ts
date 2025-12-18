@@ -1,5 +1,16 @@
 import { cronJobs } from '@rocket.chat/cron';
-import { AirGappedRestriction } from '@rocket.chat/license';
+// Conditional import for FOSS builds (license is EE-only)
+let AirGappedRestriction: any;
+try {
+	AirGappedRestriction = require('@rocket.chat/license').AirGappedRestriction;
+} catch {
+	// Stub for FOSS builds
+	AirGappedRestriction = {
+		computeRestriction: () => {
+			// No-op for FOSS builds
+		},
+	};
+}
 import type { Logger } from '@rocket.chat/logger';
 import { Statistics } from '@rocket.chat/models';
 

@@ -1,6 +1,19 @@
 import { ServiceStarter } from '@rocket.chat/core-services';
 import { LivechatInquiryStatus, type InquiryWithAgentInfo, type IOmnichannelQueue } from '@rocket.chat/core-typings';
-import { License } from '@rocket.chat/license';
+// Conditional import for FOSS builds (license is EE-only)
+let License: any;
+try {
+	License = require('@rocket.chat/license').License;
+} catch {
+	// Stub for FOSS builds
+	License = {
+		shouldPreventAction: async () => false,
+		hasValidLicense: () => false,
+		hasModule: () => false,
+		getModules: () => [],
+		getTags: () => [],
+	};
+}
 import { LivechatInquiry, LivechatRooms } from '@rocket.chat/models';
 import { tracerSpan } from '@rocket.chat/tracing';
 

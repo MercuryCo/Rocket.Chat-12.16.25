@@ -1,5 +1,17 @@
 import type { IImportUser, IUser } from '@rocket.chat/core-typings';
-import { License } from '@rocket.chat/license';
+// Conditional import for FOSS builds (license is EE-only)
+let License: any;
+try {
+	License = require('@rocket.chat/license').License;
+} catch {
+	// Stub for FOSS builds
+	License = {
+		hasValidLicense: () => false,
+		hasModule: () => false,
+		getModules: () => [],
+		getTags: () => [],
+	};
+}
 import type { Logger } from '@rocket.chat/logger';
 import { Users } from '@rocket.chat/models';
 

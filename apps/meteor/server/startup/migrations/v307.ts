@@ -1,7 +1,19 @@
 import { Apps } from '@rocket.chat/apps';
 import type { AppSignatureManager } from '@rocket.chat/apps-engine/server/managers/AppSignatureManager';
 import type { IAppStorageItem } from '@rocket.chat/apps-engine/server/storage';
-import { License } from '@rocket.chat/license';
+// Conditional import for FOSS builds (license is EE-only)
+let License: any;
+try {
+	License = require('@rocket.chat/license').License;
+} catch {
+	// Stub for FOSS builds
+	License = {
+		hasValidLicense: () => false,
+		hasModule: () => false,
+		getModules: () => [],
+		getTags: () => [],
+	};
+}
 
 import type { AppRealStorage } from '../../../ee/server/apps/storage';
 import { addMigration } from '../../lib/migrations';
